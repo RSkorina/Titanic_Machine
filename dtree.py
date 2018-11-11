@@ -101,8 +101,8 @@ class DecisionTree():
     def predict(self, X):
         # self.root.walk(0)
         predictions = []
+        
         for sample in X:
-            # print(sample)
             node = self.root
             while(len(node.children)) > 0:
                 value = sample[node.feature]
@@ -111,7 +111,6 @@ class DecisionTree():
                 except:
                     break
             predictions.append(node.majority)
-        print(predictions)
         return np.array(predictions)
     
     

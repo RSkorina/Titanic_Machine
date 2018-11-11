@@ -86,7 +86,10 @@ class cleaner(object):
         
         df['Embarked'] = df['Embarked'].map({'Q': 1, 'S': 0, 'C':2})
         #drop uneeded columns
-        return df.drop(['Name','Age', 'SibSp', 'Parch', 'Ticket', 'Fare', 'Cabin', 'meanTicketPrice'],axis = 1)
+        df = df.drop(['Name','Age', 'SibSp', 'Parch', 'Ticket', 'Fare', 'Cabin', 'meanTicketPrice'],axis = 1)
+        df = pd.get_dummies(data = df, columns=['Pclass', 'AgeClass', 'Embarked'])
+        
+        return df
 
 def one_hot_transform(X, y):
     enc = preprocessing.OneHotEncoder(categorical_features='auto')
@@ -103,6 +106,7 @@ def train(classifier):
     
     y = df.iloc[:, 0].values
     X = df.iloc[:, 1:].values
+    print(y)
     
     classifier.fit(X, y)
     
@@ -122,12 +126,13 @@ def test_acc(classifier):
     y = y.values
     y = y.flatten()
     
-    print(((classifier.predict(X) == y)*1).sum()/y.shape[0])
+    print(((classifier.predict(X) == y*1)).sum()/y.shape[0])
 
-# clf = DecisionTreeClassifier(max_depth=4, splitter='random')
-clf = RandomForestClassifier(n_estimators = 3, max_depth=4)
+#clf = DecisionTreeClassifier(max_depth=5, splitter='random')
+clf = DecisionTree(max_depth=4)
+# clf = RandomForestClassifier(n_estimators = 3, max_depth=4)
 train(clf)
-# tree.export_graphviz(clf, out_file='tree.dot')
+# tree.export_graphviz(clf, out_file='tree2.dot')
 
 test_acc(clf)
 
