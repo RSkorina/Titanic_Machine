@@ -78,9 +78,7 @@ class DecisionTree():
     def __init__(self, max_depth=3):
         self.max_depth = max_depth
         
-    def fit(self, X, y):
-        # graph = Digraph()
-        
+    def fit(self, X, y):        
         self.classes = np.unique(y)
         X_y = np.append(X, y.reshape((y.shape[0], 1)), 1)
         self.root = Node(X_y, self.max_depth, [])
