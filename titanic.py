@@ -8,14 +8,15 @@ Created on Sat Nov 10 20:01:57 2018
 
 import numpy as np
 import pandas as pd
+import sklearn
 from dtree import DecisionTree
+from dforest import DecisionForest
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
-from sklearn import preprocessing
-from sklearn import tree
+from sklearn.linear_model import LogisticRegression
+from sklearn.svm import SVC, LinearSVC
 
-#first GO Titanic Clean
-#Could make Class and easier
+
 class cleaner(object):
     def __init__(self):
         self.meanPrice = []
@@ -91,49 +92,48 @@ class cleaner(object):
         
         return df
 
-def one_hot_transform(X, y):
-    enc = preprocessing.OneHotEncoder(categorical_features='auto')
-    print(enc)
-    enc.fit(X) 
-    enc.transform(X)
-    enc.tranform(y)
     
 
-def train(classifier):
+def train_data():
     clean = cleaner()
     df = pd.read_csv('train.csv')
     df = clean.titanicClean(df)
-    
     y = df.iloc[:, 0].values
     X = df.iloc[:, 1:].values
-    print(y)
+    return X, y
     
-    classifier.fit(X, y)
-    
-    print(((classifier.predict(X) == y)*1).sum()/y.shape[0])
 
-
-def test_acc(classifier):
+def test_data():
     clean = cleaner()
     df = pd.read_csv('test.csv')
-    
     df = clean.titanicClean(df)
-
     X = df.values
-    
     y = pd.read_csv('gender_submission.csv')
     y = y.set_index('PassengerId')
     y = y.values
     y = y.flatten()
+    return X, y
     
-    print(((classifier.predict(X) == y*1)).sum()/y.shape[0])
 
-#clf = DecisionTreeClassifier(max_depth=5, splitter='random')
-clf = DecisionTree(max_depth=4)
-# clf = RandomForestClassifier(n_estimators = 3, max_depth=4)
-train(clf)
-# tree.export_graphviz(clf, out_file='tree2.dot')
+clfs = [SVC(C=1.0, kernel='rbf'), 
+        LinearSVC(penalty='l2', C=1.0, max_iter=1000),
+        LogisticRegression(),
+        DecisionTreeClassifier(max_depth=4, splitter='best'),
+        RandomForestClassifier(n_estimators = 3, max_depth=4),
+        DecisionTree(max_depth=4),
+        DecisionForest(n_estimators=5, bootstrap=True),
+        DecisionForest(n_estimators=100, russells_method=True)]
 
-test_acc(clf)
+X_train, y_train = train_data()
+X_test, y_test = test_data()
+
+for clf in clfs:
+    clf.fit(X_train, y_train)
+    print("%s: \t[%f/%f]" % (clf.__class__.__name__, clf.score(X_train, y_train), clf.score(X_test, y_test)) )
+    if isinstance(clf, DecisionTreeClassifier):
+        sklearn.tree.export_graphviz(clf, out_file='tree.dot')
+
+
+
 
 

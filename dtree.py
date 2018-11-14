@@ -7,10 +7,6 @@ Created on Sat Nov 10 20:00:35 2018
 """
 
 import numpy as np
-import pandas as pd
-from graphviz import Digraph
-
-
 
 class Node():
     def __init__(self, X_y, max_depth, usedCol, criterion='gini'):
@@ -77,12 +73,6 @@ class Node():
             impurity += ( (c == self.X_y[:,-1] * 1).sum()/self.X_y.shape[0] )**2
         return 1 - impurity
     
-    def walk(self, level):
-        import pprint
-        print("level:", level, sep=" ", end=" ")
-        pprint.pprint(self)
-        for i in self.children:
-            self.children[i].walk(level + 1)
     
 class DecisionTree():
     def __init__(self, max_depth=3):
@@ -99,7 +89,6 @@ class DecisionTree():
     
     
     def predict(self, X):
-        # self.root.walk(0)
         predictions = []
         
         for sample in X:
@@ -113,11 +102,7 @@ class DecisionTree():
             predictions.append(node.majority)
         return np.array(predictions)
     
+    def score(self, X, y):
+        return ((self.predict(X) == y)*1).sum()/y.shape[0]
     
-def draw():
-    graph = Digraph()
-    graph.node('A', label='Samples=[x1, x2, x5, x9, ...]Impurity=0.1231\nMajority=1\nFeature=Sex')
-    graph.view()  
-    graph.node('B', label='Samples=[x1, x2, x5, x9, ...]Impurity=0.1231\nMajority=1\nFeature=Sex')
-    graph.view()  
 
